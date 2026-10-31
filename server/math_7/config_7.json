@@ -1,0 +1,322 @@
+{
+ "version": 7,
+ "math": "math_7",
+ "rng": {
+  "rtp": 0.95,
+  "rungs": [
+   {
+    "id": "nowin",
+    "label": "No Win",
+    "tier": 4,
+    "mult": 0,
+    "weight": 5044
+   },
+   {
+    "id": "pear",
+    "label": "Pear",
+    "tier": 5,
+    "mult": 1,
+    "weight": 2901
+   },
+   {
+    "id": "peach",
+    "label": "Peach",
+    "tier": 6,
+    "mult": 2,
+    "weight": 1547
+   },
+   {
+    "id": "pineapple",
+    "label": "Pineapple",
+    "tier": 7,
+    "mult": 5,
+    "weight": 387
+   },
+   {
+    "id": "melon",
+    "label": "Jackpot",
+    "tier": 8,
+    "mult": 10,
+    "weight": 97
+   },
+   {
+    "id": "watermelon",
+    "label": "Top Jackpot",
+    "tier": 9,
+    "mult": 25,
+    "weight": 24
+   }
+  ],
+  "ramp": 0.1,
+  "pCentre": 0.5424,
+  "pCentreSource": "mean in-rung p over places 1-5 of the math_4 pilot (math/math_4/pilot_4.json sha256 ff867dcbf66c029d47d890eba9e57146d73f99c3992f7c25b2d2a2b1281693a8)"
+ },
+ "physics": {
+  "gravity": {
+   "x": 0,
+   "y": 1,
+   "scale": 0.0015
+  },
+  "positionIterations": 8,
+  "velocityIterations": 6,
+  "constraintIterations": 2,
+  "stepMs": 16.666666666666668,
+  "radii": [
+   26,
+   34,
+   44,
+   56,
+   70,
+   86,
+   104,
+   124,
+   146,
+   170
+  ],
+  "radiusScale": 1,
+  "restitution": 0.18,
+  "friction": 0.35,
+  "frictionAir": 0.012,
+  "frictionStatic": 0.5,
+  "density": 0.001,
+  "slop": 0.05,
+  "maxSides": 20,
+  "jarW": 600,
+  "jarH": 900,
+  "overflowY": 110,
+  "dropY": 50,
+  "wallThickness": 100,
+  "pop": 2,
+  "jitterBand": 0.1
+ },
+ "rules": {
+  "cooldownTicks": 30,
+  "nextDecisionDelay": 24,
+  "overflowGraceTicks": 45,
+  "restSpeed": 0.05,
+  "restAngSpeed": 0.01,
+  "restTicks": 30,
+  "classic": {
+   "drops": 18,
+   "walkAwayTicks": 3600,
+   "autoplayEveryTicks": 72,
+   "settleCapTicks": 360,
+   "bonusDrops": 3,
+   "checkDrop": 18
+  },
+  "chainWindowTicks": 30,
+  "chainCap": 10,
+  "pointBase": 10,
+  "tallyBase": 5,
+  "nominalSpawn": [
+   0.3,
+   0.3,
+   0.25,
+   0.15
+  ],
+  "mark": {
+   "classicDrop": 6
+  }
+ },
+ "bots": {
+  "classicThink": {
+   "random": [
+    150,
+    0.5
+   ],
+   "weak": [
+    300,
+    0.45
+   ],
+   "rep": [
+    228,
+    0.45
+   ],
+   "sharp": [
+    180,
+    0.35
+   ],
+   "advhigh": [
+    240,
+    0.35
+   ],
+   "advlow": [
+    36,
+    0
+   ],
+   "corner": [
+    200,
+    0.4
+   ]
+  }
+ },
+ "tally": {
+  "cMin": 0.85,
+  "cMax": 1.2,
+  "w": 2.5
+ },
+ "board": {
+  "rivals": 9,
+  "aSigma": 0.35,
+  "aClamp": [
+   0.5,
+   2
+  ],
+  "gapBase": 30,
+  "gapMedian": 45,
+  "gapSigma": 0.5,
+  "minSpacing": 30,
+  "sCap": 5120,
+  "w5Mult": 1.25,
+  "windowTicks": 300,
+  "leaderL": 1.25,
+  "leaderF": 100,
+  "hGate": 0.6,
+  "nonLeaderCap": 0.9,
+  "bCap": 0.97,
+  "bOff": 40,
+  "tauLoOffset": 0.1,
+  "tauHi": 0.85,
+  "finalGapCap": 30,
+  "closeTicksClassic": 120,
+  "playoutTicks": 600,
+  "alert": {
+   "probs": [
+    0.35,
+    0.45,
+    0.2
+   ],
+   "lo": 0.15,
+   "hi": 0.3,
+   "minGapTicks": 240,
+   "preCap": 0.7,
+   "within": 0.15,
+   "closeFrac": 0.3333333333333333,
+   "lookbackTicks": 300,
+   "withinFloor": 40
+  },
+  "mUp": {
+   "frac": 0.04,
+   "abs": 80
+  },
+  "mDn": {
+   "frac": 0.03,
+   "abs": 40
+  },
+  "slackMax": 0.25,
+  "thinCap": 0.5,
+  "lookFromDrop": 16,
+  "gCurveFrom": 6,
+  "sloFrac": 0.85,
+  "places": 10,
+  "kernCap": 2.5,
+  "kernUB": 8,
+  "kernL": 30,
+  "closeRate": 0.045,
+  "postGrid": 5,
+  "minStep": 20,
+  "lookHorizon": 1800,
+  "maxRelooks": 6,
+  "kernFile": "kern.json",
+  "kernSha256": "ed719ba40be70299d06bfd533b8f152b5f101f83932f517512698f960ec59ae0",
+  "k5": {
+   "alphaPool": 0.0003125,
+   "alphaCell": 3.472222222222222e-05,
+   "cells": 288,
+   "pitSeed": "ff7-pit",
+   "form": "PIT at the round's own S_final (MATH_SPEC_7 2)"
+  },
+  "j3": {
+   "ceiling": 1.25,
+   "flagP": 0.01
+  },
+  "k1": {
+   "pooledMax": 0.045,
+   "perArmP": 0.01,
+   "cap10": 0.1
+  },
+  "start": {
+   "form": "NLS (S76): L leaders ahead before 30%, drawn from W_L at init",
+   "WL": [
+    1042,
+    1023,
+    1035,
+    1055,
+    1082,
+    1091,
+    1078,
+    1027,
+    895,
+    672
+   ],
+   "band": {
+    "off": 20,
+    "frac": 0.25,
+    "abs": 80
+   }
+  },
+  "bonus": {
+   "kMax": 2,
+   "db": 7
+  },
+  "late": {
+   "O": {
+    "frac": 0.5,
+    "abs": 500
+   },
+   "guardLead": 20,
+   "guardFromLook": true
+  }
+ },
+ "copy": {
+  "rivalLabel": "Rivals",
+  "rivalLabelSingular": "Rival",
+  "rivalsRule": "Rivals are computer-generated. The game makes their fruit-style names. It generates their scores after your place is drawn, from this game's own score range, so they finish in the drawn order. How far ahead of or behind you each Rival finishes is also generated. In the first third of the round, how many Rivals start ahead of you is generated too, the same way whatever place is drawn. There are 9 Rivals on each board.",
+  "placeLine": "Your place on the board was drawn at round start and revealed by play. Places 1-5 earn a reward; places 6-10 are No Win.",
+  "resultLine": "Your reward was drawn at round start and revealed by play.",
+  "jackpotLine": "Jackpot: a reward of at least 9.89x. Top Jackpot: a reward of at least 24.89x.",
+  "rungLabels": {
+   "nowin": "No Win",
+   "pear": "Pear",
+   "peach": "Peach",
+   "pineapple": "Pineapple",
+   "melon": "Jackpot",
+   "watermelon": "Top Jackpot"
+  },
+  "tallyCover": "Jar tally: every fruit left in the jar scores by size, times your jar rating (0.85 to 1.20).",
+  "catchUp": "{handle} is catching up!",
+  "bonusClassic": "Bonus drops",
+  "finishing": "Rivals finishing",
+  "boardRule": "The board at the end of the round shows your place, and that place sets your reward. In rare rounds the place shown can differ from the place drawn at round start, usually lower. The place shown is the one that counts.",
+  "bonusRule": "Bonus drops are extra drops. Your reward was drawn at round start.",
+  "boardView": {
+   "header": "Place {p} of 10",
+   "you": "You",
+   "finalHeader": "Final board"
+  }
+ },
+ "bank": {
+  "gm_pop": {
+   "classic": 1316.2607739382224
+  },
+  "kappa": {
+   "classic": 1.22168
+  },
+  "w5": {
+   "classic": 5400
+  },
+  "seed": "ff3b-bank (reused, sha256 2bfc2316...)",
+  "nPerBot": 1000,
+  "file": "common/bank_summary.json",
+  "note": "constants copied from the bank summary; loadEnv asserts they match"
+ },
+ "seeds": {
+  "pilotCold": "ff7-pilot-cold",
+  "pilotWarm": "ff7-pilot-warm",
+  "tuneCold": "ff7-tune-cold",
+  "tuneWarm": "ff7-tune-warm",
+  "nat": "ff7-nat",
+  "nat30": "ff7-nat30"
+ },
+ "frozenConfigHash": "fcae0b4d1ff3e83c2bf20fed2fefb4ebc9a46eca729e7b925a88b51eaa0fc964"
+}
