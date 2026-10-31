@@ -67,6 +67,7 @@
   .slot.nx img { width: 22px; height: 22px; opacity: 0.8; }
   .slot img.hide { visibility: hidden; }
   .mini { font-size: 8px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+  .hb { display: flex; gap: 6px; } .swh { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; } #hapt.off, #mute.off { opacity: 0.45; } #hapt { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text); font-size: 15px; font-weight: 700; cursor: pointer; padding: 0; font-family: inherit; }
   #mute { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; font-family: inherit; }
   #strip { height: 140px; margin-top: 6px; flex: none; padding: 0 6px; overflow: hidden; position: relative; }
   #stripHead { height: 20px; line-height: 20px; font-size: 12px; font-weight: 700; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -155,7 +156,7 @@
         <div class="slot"><img id="imgNow" class="hide" alt=""><div class="mini" id="lNow"></div></div>
         <div class="slot nx"><img id="imgNext" class="hide" alt=""><div class="mini" id="lNext"></div></div>
       </div>
-      <button id="mute"></button>
+      <div class="hb"><button id="hapt"></button><button id="mute"></button></div><input type="checkbox" switch id="iosSw" class="swh" tabindex="-1" aria-hidden="true"><label for="iosSw" id="iosLbl" class="swh"></label>
     </div>
     <div id="strip" class="glass"><div id="stripHead"></div><div id="rows"></div><div id="ovfLine"></div></div>
     <div id="jarArea"><canvas id="cv"></canvas><div id="fx"></div><div id="tally"></div></div>
@@ -197,7 +198,7 @@
     title: 'Fruit Fusion', tagline: 'Merge fruit and climb the Rivals board.', format: 'Classic · 18 drops',
     btnPlay: 'Play', btnHow: 'How to play', btnRules: 'Rules & terms', btnBack: 'Back', btnAgain: 'Play again',
     titleFoot: 'Rivals are computer-generated.',
-    hudScore: 'Score', hudNow: 'Now', hudNext: 'Next', muteOn: 'Sound on', muteOff: 'Sound off',
+    hudScore: 'Score', hudNow: 'Now', hudNext: 'Next', muteOn: 'Sound on', muteOff: 'Sound off', hapOn: 'Vibration on', hapOff: 'Vibration off',
     soundToast: 'Sound on: check the silent switch and volume',
     dropsLeft: 'Drops left {n}', bonusLeft: 'Bonus drops {n}',
     autoplay: 'Auto-play is on. Drop a fruit to take over.', overflow: 'The jar overflowed. The round ends here.', tally: 'Jar tally +{n}',
@@ -246,14 +247,14 @@
   let cosRand = mulberry32(0xF00D); // cosmetic randomness only; reset at each round start and advanced only by frame data
 
   // ------------------------------------------------------------ state
-  let toastDone = false, CFG = null, ready = false, initFail = null, screen = 'title', rulesFrom = 'title', seenHow = false, muted = false;
+  let toastDone = false, CFG = null, ready = false, initFail = null, screen = 'title', rulesFrom = 'title', seenHow = false, muted = false, hapticsOn = true;
   let jar = { w: 600, h: 900, dropY: 50, overflowY: 110 }, RAD = [26, 34, 44, 56, 70, 86, 104, 124, 146, 170];
   let R = null; // the round
   const msgLog = []; let logOn = true, pausedN = 0, msgIdx = 0, dropsPosted = 0, alertsShown = [], forceFrame = null;
   const fpsLog = [];
   function newRound() {
     cosRand = mulberry32(0xF00D);
-    return { frames: new Map(), latest: -1, play: -1, last: null, particles: [], births: new Map(), seen: new Set(), prevDl: 18, bonus: false, bonusDl: 0, ended: false, endReason: null, fin: false, tallyShown: false,
+    return { frames: new Map(), latest: -1, play: -1, last: null, particles: [], rings: [], sq: new Map(), landed: new Set(), py: new Map(), pvy: new Map(), births: new Map(), seen: new Set(), prevDl: 18, bonus: false, bonusDl: 0, ended: false, endReason: null, fin: false, tallyShown: false,
       score: 0, rowsKey: '', alertQ: [], alertCur: null, bonusHdr: 0, finishing: false, ovfEnd: false, base: '', lastTick: 0, finalMsg: null, startedAt: performance.now(), aimX: 300 };
   }
 
@@ -312,8 +313,33 @@
         const dur = SND[name].reduce((m, o) => Math.max(m, (o.dl || 0) + o.d + 0.05), 0.1), c = new OC(1, Math.ceil(44100 * dur), 44100);
         SND[name].forEach(o => osc(c, c.destination, o, 0)); poolUrls[name] = wavUrl(await c.startRendering());
       }
+      for (const nm of ['merge', 'land']) for (let t = 0; t < 10; t++) { const c = new OC(1, Math.ceil(44100 * 0.45), 44100); synth(c, c.destination, 0.005, nm, t); poolUrls[nm + t] = wavUrl(await c.startRendering()); }
+      { const c = new OC(1, Math.ceil(44100 * 0.25), 44100); synth(c, c.destination, 0.005, 'drop', 0); poolUrls.drop = wavUrl(await c.startRendering()); }
     } catch (e) { /* pool stays partial */ }
   }
+  // ---- feel pass (Sasha 2026-10-31, from reference/feel_test_1): water-drop bloops, landing bonk, haptics. Cosmetic only.
+  function bloop(c, d, t0, f0, dur, vol) {
+    const o = c.createOscillator(), g = c.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(f0, t0); o.frequency.exponentialRampToValueAtTime(f0 * 3.5, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur + 0.03);
+    o.connect(g).connect(d); o.start(t0); o.stop(t0 + dur + 0.05);
+    const th = c.createOscillator(), tg = c.createGain(); th.type = 'sine';
+    th.frequency.setValueAtTime(f0 * 0.28, t0); th.frequency.exponentialRampToValueAtTime(70, t0 + 0.09);
+    tg.gain.setValueAtTime(vol * 0.9, t0); tg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.11);
+    th.connect(tg).connect(d); th.start(t0); th.stop(t0 + 0.13);
+  }
+  const noiseCache = new WeakMap();
+  function wet(c, d, t0, vol) {
+    let b = noiseCache.get(c); if (!b) { const n = Math.ceil(c.sampleRate * 0.12), r = mulberry32(0xBEEF); b = c.createBuffer(1, n, c.sampleRate); const x = b.getChannelData(0); for (let i = 0; i < n; i++) x[i] = (r() * 2 - 1) * Math.pow(1 - i / n, 3); noiseCache.set(c, b); }
+    const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = b; f.type = 'bandpass'; f.frequency.value = 2200; f.Q.value = 0.8; g.gain.value = vol;
+    s.connect(f).connect(g).connect(d); s.start(t0);
+  }
+  function synthMerge(c, d, t, tier) { const f0 = 1150 * Math.pow(0.86, tier), dur = 0.10 + tier * 0.012, v = 0.30; bloop(c, d, t, f0, dur, v); bloop(c, d, t + 0.075, f0 * 1.12, dur * 0.9, v * 0.8); wet(c, d, t, 0.12 + tier * 0.015); }
+  function synthLand(c, d, t, tier) { const o = c.createOscillator(), g = c.createGain(), f = 720 * Math.pow(0.9, tier); o.type = 'sine'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.68, t + 0.14); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2); o.connect(g).connect(d); o.start(t); o.stop(t + 0.22); }
+  function synthDrop(c, d, t) { bloop(c, d, t, 900, 0.07, 0.12); }
+  function synth(c, d, t, name, tier) { if (name === 'merge') synthMerge(c, d, t, tier); else if (name === 'land') synthLand(c, d, t, tier); else if (name === 'drop') synthDrop(c, d, t); else return false; return true; }
+  const canVib = typeof navigator.vibrate === 'function'; const hapLog = [];
+  function haptic(p) { if (TEST) hapLog.push(p); if (!hapticsOn) return; try { if (canVib) { navigator.vibrate(p); return; } } catch (e) { /* ignore */ } try { $('iosLbl').click(); } catch (e) { /* ignore */ } }
   const soundLog = [];
   function play(name, tier) {
     if (TEST) soundLog.push(name);
@@ -321,10 +347,9 @@
     ensureAudio();
     if (actx) {
       const base = actx.currentTime;
-      if (name === 'merge') osc(actx, actx.destination, { f: 240 + tier * 45, d: 0.14, t: 'sine', g: 0.18, gl: 480 + tier * 70 }, base);
-      else SND[name].forEach(o => osc(actx, actx.destination, o, base));
+      if (!synth(actx, actx.destination, base + 0.005, name, tier || 0)) SND[name].forEach(o => osc(actx, actx.destination, o, base));
     }
-    const url = poolUrls[name]; if (url && pool.length) { const a = pool[poolIdx]; poolIdx = (poolIdx + 1) % pool.length; try { a.src = url; a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ } }
+    const url = poolUrls[(name === 'merge' || name === 'land') ? name + (tier || 0) : name]; if (!actx && url && pool.length) { const a = pool[poolIdx]; poolIdx = (poolIdx + 1) % pool.length; try { a.src = url; a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ } }
   }
 
   // ------------------------------------------------------------ banner slot (lower bar)
@@ -433,11 +458,13 @@
     for (const f of F.fr) {
       const tier = f[1], r = RAD[tier], img = spr[tier]; let sc = 1;
       const b = R.births.get(f[0]); if (b !== undefined) { const k = Math.min(1, (F.t - b) / 13); sc = 0.55 + 0.45 * easeBack(k); }
-      ctx.save(); ctx.translate(f[2], f[3]); ctx.rotate(f[4]); ctx.scale(sc, sc);
+      let sx = 1, sy = 1; const q = R.sq.get(f[0]); if (q) { const k = Math.max(0, F.t - q.t), amp = q.a * Math.pow(0.86, k), w = Math.cos(k * 0.9) * amp; sx = 1 + w * 0.9; sy = 1 - w * 0.9; }
+      ctx.save(); ctx.translate(f[2], f[3] + r * (1 - sy) * 0.5); ctx.scale(sx, sy); ctx.rotate(f[4]); ctx.scale(sc, sc);
       if (img) ctx.drawImage(img, -r, -r, r * 2, r * 2); else { ctx.fillStyle = '#ffd447'; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill(); }
       ctx.restore();
     }
-    for (const p of R.particles) { ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); }
+    for (const g of R.rings) { ctx.globalAlpha = g.life * 0.6; ctx.strokeStyle = g.color; ctx.lineWidth = 5 * g.life; ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2); ctx.stroke(); }
+    for (const p of R.particles) { ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color; ctx.beginPath(); if (p.j) ctx.ellipse(p.x, p.y, p.size, p.size * (1 + Math.min(1.5, Math.abs(p.vy) * 0.08)), Math.atan2(p.vy, p.vx) + Math.PI / 2, 0, Math.PI * 2); else ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); }
     ctx.globalAlpha = 1;
   }
   let lastRaf = 0;
@@ -502,11 +529,13 @@
     $('barLab').textContent = (R.bonus ? COPY.bonusLeft : COPY.dropsLeft).replace('{n}', String(dl));
   }
   function burst(x, y, tier) {
-    const n = 14 + tier * 2, col = ART[tier].glow;
+    const n = 14 + tier * 3, col = ART[tier].glow;
     for (let i = 0; i < n; i++) {
-      const ang = (Math.PI * 2 * i) / n + cosRand() * 0.3, sp = 2 + cosRand() * 4;
-      R.particles.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, life: 1, decay: 0.02 + cosRand() * 0.02, size: 3 + cosRand() * 4, color: col });
+      const ang = (Math.PI * 2 * i) / n + cosRand() * 0.4, sp = 3 + cosRand() * (5 + tier * 0.6);
+      R.particles.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 3, life: 1, decay: 0.022 + cosRand() * 0.012, size: 3 + cosRand() * (4 + tier * 0.5), color: col, j: 1 });
     }
+    for (let i = 0; i < 6; i++) R.particles.push({ x, y, vx: (cosRand() - 0.5) * 3, vy: -6 - cosRand() * 4, life: 1, decay: 0.03, size: 2.5, color: 'rgba(255,255,255,0.85)', j: 1 });
+    R.rings.push({ x, y, r: RAD[tier] * 0.75, life: 1, color: col });
   }
   function onFrame(m) {
     R.frames.set(m.t, m); R.latest = m.t; R.last = m;
@@ -516,13 +545,18 @@
     for (const f of m.fr) R.seen.add(f[0]);
     for (const [u, t] of R.births) if (m.t - t > 13) R.births.delete(u);
     // cosmetic particles advance once per received frame
-    for (const g of m.mg) { burst(g[1], g[2], g[0]); mergeSound(g[0]); }
-    for (const p of R.particles) { p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.vx *= 0.98; p.life -= p.decay; }
+    for (const g of m.mg) { burst(g[1], g[2], g[0]); mergeSound(g[0]); if (!R.ended) haptic(g[0] >= 7 ? [18, 30, 24] : 12 + g[0] * 2); }
+    if (m.mg.length) for (const [u, t] of R.births) if (t === m.t) { R.sq.set(u, { a: 0.35, t: m.t }); R.landed.add(u); }
+    // first landing of each fruit: bonk + squish + tick (the player's own physics only)
+    for (const f of m.fr) { const py = R.py.get(f[0]); if (py !== undefined) { const vy = f[3] - py, pv = R.pvy.get(f[0]) || 0; if (!R.landed.has(f[0]) && pv > 2.5 && vy < pv * 0.4) { R.landed.add(f[0]); R.sq.set(f[0], { a: Math.min(0.3, pv * 0.03), t: m.t }); if (!R.ended) { landSound(f[1]); haptic(8); } } R.pvy.set(f[0], vy); } R.py.set(f[0], f[3]); }
+    for (const [u, q] of R.sq) if (m.t - q.t > 40) R.sq.delete(u);
+    for (const p of R.particles) { p.x += p.vx; p.y += p.vy; p.vy += p.j ? 0.35 : 0.12; p.vx *= 0.98; p.life -= p.decay; }
+    for (const g of R.rings) { g.r += 4; g.life -= 0.05; } R.rings = R.rings.filter(g => g.life > 0);
     R.particles = R.particles.filter(p => p.life > 0);
     // drop sound: a drop is a fall of the drops-left counter (player or auto-play)
     if (R.ended) { /* rev 1: frames after the end carry dl 0 for every draw (G8o(d)); no drop sound */ }
-    else if (m.dl < R.prevDl && !R.bonus) { play('drop'); if (!toastDone) { toastDone = true; showToast(); } }
-    else if (m.dl < R.prevDl) play('drop');
+    else if (m.dl < R.prevDl && !R.bonus) { play('drop'); haptic(6); if (!toastDone) { toastDone = true; showToast(); } }
+    else if (m.dl < R.prevDl) { play('drop'); haptic(6); }
     R.prevDl = m.dl;
     setPreview(m.cur, m.nxt);
     setBanner('autoplay', !!m.ap && !R.ended); setBanner('overflow', !!R.ended && R.endReason === 'overflow');
@@ -531,6 +565,8 @@
     if (screen === 'round' && forceFrame === null && !rafStarted) { rafStarted = true; }
   }
   let rafStarted = false, lastMerge = 0;
+  function landSound(tier) { const n = performance.now(); if (n - lastLand > 60) { lastLand = n; play('land', tier); } }
+  let lastLand = 0;
   function mergeSound(tier) { const n = performance.now(); if (n - lastMerge > 45) { lastMerge = n; play('merge', tier); } }
   function onSnapshot(m) {
     // HUD score, strip rows, header and score popups all come from this one message (one snapshot)
@@ -618,7 +654,8 @@
     const fill = (id, list) => { const host = $(id); host.textContent = ''; list.forEach(t => host.appendChild(el('li', '', t[0] === '@' ? CFG.copy[t.slice(1)] : t))); };
     fill('ruRules', COPY.rules); fill('ruTerms', COPY.terms);
   }
-  function updateMute() { const b = $('mute'); b.textContent = muted ? 'x' : '♪'; b.setAttribute('aria-label', muted ? COPY.muteOff : COPY.muteOn); b.title = muted ? COPY.muteOff : COPY.muteOn; }
+  function updateHapt() { const b = $('hapt'); b.textContent = '≋'; b.classList.toggle('off', !hapticsOn); b.setAttribute('aria-label', hapticsOn ? COPY.hapOn : COPY.hapOff); b.title = hapticsOn ? COPY.hapOn : COPY.hapOff; }
+  function updateMute() { const b = $('mute'); b.classList.toggle('off', muted); b.textContent = muted ? 'x' : '♪'; b.setAttribute('aria-label', muted ? COPY.muteOff : COPY.muteOn); b.title = muted ? COPY.muteOff : COPY.muteOn; }
   function startRound(opts) {
     for (const id of ['final', 'resSum', 'rHead', 'tally', 'rows']) $(id).textContent = ''; // N3: nothing of the earlier round stays in the DOM
     $('tally').style.display = 'none'; $('sResult').classList.remove('fade');
@@ -640,6 +677,7 @@
   $('ruBack').addEventListener('click', () => showScreen(rulesFrom));
   $('rAgain').addEventListener('click', () => startRound());
   $('mute').addEventListener('click', () => { muted = !muted; updateMute(); });
+  $('hapt').addEventListener('click', () => { hapticsOn = !hapticsOn; updateHapt(); if (hapticsOn) haptic(14); }); updateHapt();
 
   // ------------------------------------------------------------ input: slide to aim, release to drop
   let aiming = false;
