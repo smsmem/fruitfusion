@@ -1,0 +1,351 @@
+{
+ "version": 8,
+ "math": "math_8",
+ "rng": {
+  "rtp": 0.95,
+  "rungs": [
+   {
+    "id": "nowin",
+    "label": "No Win",
+    "tier": 4,
+    "mult": 0,
+    "weight": 5044
+   },
+   {
+    "id": "pear",
+    "label": "Pear",
+    "tier": 5,
+    "mult": 1,
+    "weight": 2901
+   },
+   {
+    "id": "peach",
+    "label": "Peach",
+    "tier": 6,
+    "mult": 2,
+    "weight": 1547
+   },
+   {
+    "id": "pineapple",
+    "label": "Pineapple",
+    "tier": 7,
+    "mult": 5,
+    "weight": 387
+   },
+   {
+    "id": "melon",
+    "label": "Jackpot",
+    "tier": 8,
+    "mult": 10,
+    "weight": 97
+   },
+   {
+    "id": "watermelon",
+    "label": "Top Jackpot",
+    "tier": 9,
+    "mult": 25,
+    "weight": 24
+   }
+  ],
+  "ramp": 0.1,
+  "pCentre": 0.5198,
+  "pCentreSource": "mean in-rung p over places 1-5, both arms, 7 calibration bots, Rival tune iteration 1 (N=100, seeds ff8-tune-cold/warm; tuning_log/tuning_log.json); S104 re-centre (was 0.5424, differed by 0.0226 > 0.003)"
+ },
+ "physics": {
+  "gravity": {
+   "x": 0,
+   "y": 1,
+   "scale": 0.0015
+  },
+  "positionIterations": 8,
+  "velocityIterations": 6,
+  "constraintIterations": 2,
+  "stepMs": 16.666666666666668,
+  "radii": [
+   30,
+   42,
+   58,
+   80,
+   106,
+   138,
+   176,
+   218,
+   264,
+   300
+  ],
+  "radiusScale": 1,
+  "restitution": 0.18,
+  "friction": 0.35,
+  "frictionAir": 0.012,
+  "frictionStatic": 0.5,
+  "density": 0.001,
+  "slop": 0.05,
+  "maxSides": 20,
+  "jarW": 600,
+  "jarH": 900,
+  "overflowY": 110,
+  "dropY": 50,
+  "wallThickness": 100,
+  "pop": 2,
+  "jitterBand": 0.1,
+  "escapeMargin": 60
+ },
+ "rules": {
+  "cooldownTicks": 30,
+  "nextDecisionDelay": 24,
+  "overflowGraceTicks": 45,
+  "restSpeed": 0.05,
+  "restAngSpeed": 0.01,
+  "restTicks": 30,
+  "chainWindowTicks": 30,
+  "chainCap": 10,
+  "pointBase": 10,
+  "tallyBase": 5,
+  "nominalSpawn": [
+   0.3,
+   0.3,
+   0.25,
+   0.15
+  ],
+  "mark": {
+   "n": 16
+  },
+  "walkAwayTicks": 3600,
+  "autoplayEveryTicks": 72
+ },
+ "bots": {
+  "classicThink": {
+   "random": [
+    150,
+    0.5
+   ],
+   "weak": [
+    300,
+    0.45
+   ],
+   "rep": [
+    228,
+    0.45
+   ],
+   "sharp": [
+    180,
+    0.35
+   ],
+   "advhigh": [
+    240,
+    0.35
+   ],
+   "advlow": [
+    36,
+    0
+   ],
+   "corner": [
+    200,
+    0.4
+   ],
+   "stack": [
+    36,
+    0
+   ],
+   "tower": [
+    30,
+    0
+   ]
+  }
+ },
+ "tally": {
+  "cMin": 0.85,
+  "cMax": 1.2,
+  "w": 2.5
+ },
+ "board": {
+  "rivals": 9,
+  "aSigma": 0.35,
+  "aClamp": [
+   0.5,
+   2
+  ],
+  "gapBase": 30,
+  "gapMedian": 45,
+  "gapSigma": 0.5,
+  "minSpacing": 30,
+  "sCap": 21561,
+  "w5Mult": 1.25,
+  "windowTicks": 300,
+  "leaderL": 1.25,
+  "leaderF": 100,
+  "hGate": 0.6,
+  "nonLeaderCap": 0.9,
+  "bCap": 0.97,
+  "bOff": 40,
+  "tauLoOffset": 0.1,
+  "tauHi": 0.8,
+  "alert": {
+   "probs": [
+    0.35,
+    0.45,
+    0.2
+   ],
+   "lo": 0.45,
+   "hi": 0.9,
+   "minGapTicks": 240,
+   "preCap": 0.7,
+   "within": 0.15,
+   "closeFrac": 0.3333333333333333,
+   "lookbackTicks": 300,
+   "withinFloor": 40,
+   "note": "alert firing release count d(t) >= delta_j, delta_j = n_m * U(lo, hi) (MATH_SPEC_8 4.3)"
+  },
+  "mUp": {
+   "frac": 0.01,
+   "abs": 100
+  },
+  "mDn": {
+   "frac": 0.03,
+   "abs": 300
+  },
+  "slackMax": 0.25,
+  "thinCap": 0.5,
+  "sloFrac": 0.85,
+  "places": 10,
+  "kernCap": 2.5,
+  "kernUB": 8,
+  "kernL": 30,
+  "closeRate": 0.045,
+  "postGrid": 5,
+  "minStep": 20,
+  "kernFile": "kern.json",
+  "kernSha256": "ea5b2708bf082e0ca33804090807003b49cca68e2dd5cffd0685b15e119ffecb",
+  "k5": {
+   "alphaPool": 0.00025,
+   "alphaCell": 2.777777777777778e-05,
+   "cells": 360,
+   "pitSeed": "ff8-pit",
+   "form": "PIT at the round's own S_final (MATH_SPEC_8 8.4)"
+  },
+  "j3": {
+   "ceiling": 1.25,
+   "flagP": 0.01
+  },
+  "k1": {
+   "pooledMax": 0.045,
+   "perArmP": 0.01,
+   "cap10": 0.1
+  },
+  "start": {
+   "form": "NLS (S76) re-fit for top-out (S105): L leaders ahead before the mark, drawn from W_L at init (placeholder = the paper law until the bank exists)",
+   "WL": [
+    919,
+    958,
+    1000,
+    1016,
+    1025,
+    1031,
+    1009,
+    1003,
+    1015,
+    1024
+   ],
+   "band": {
+    "off": 20,
+    "frac": 0.25,
+    "abs": 80
+   }
+  },
+  "late": {
+   "O": {
+    "frac": 0.5,
+    "abs": 500
+   },
+   "guardLead": 20
+  },
+  "open": [
+   5,
+   10,
+   15,
+   25,
+   30,
+   35,
+   45,
+   50,
+   55
+  ]
+ },
+ "copy": {
+  "rivalLabel": "Rivals",
+  "rivalLabelSingular": "Rival",
+  "rivalsRule": "9 Rivals share your board. Your place was drawn at round start and revealed by play.",
+  "placeLine": "Your place on the board was drawn at round start and revealed by play. Places 1-5 earn a reward; places 6-10 are No Win.",
+  "resultLine": "Your reward was drawn at round start and revealed by play.",
+  "jackpotLine": "Jackpot: a reward of at least 9.89x. Top Jackpot: a reward of at least 24.89x.",
+  "rungLabels": {
+   "nowin": "No Win",
+   "pear": "Pear",
+   "peach": "Peach",
+   "pineapple": "Pineapple",
+   "melon": "Jackpot",
+   "watermelon": "Top Jackpot"
+  },
+  "tallyCover": "Jar tally: every fruit left in the jar scores by size, times your jar rating (0.85 to 1.20).",
+  "catchUp": "{handle} is catching up!",
+  "boardRule": "The board when the jar is full shows your place, and that place sets your reward. In rare rounds the place shown can differ from the place drawn at round start, usually lower. The place shown is the one that counts.",
+  "boardView": {
+   "header": "Place {p} of 10",
+   "you": "You",
+   "finalHeader": "Final board"
+  },
+  "jarFull": "Jar full!",
+  "pomRule": "Pomegranates pop small fruit nearby to make room. They score nothing."
+ },
+ "bank": {
+  "gm_pop": {
+   "topout": 9616.037923516571
+  },
+  "kappa": {
+   "topout": 1.09819
+  },
+  "w5": {
+   "topout": 22740
+  },
+  "sCap": 21561,
+  "aB": 0.71565,
+  "seed": "ff8-bank",
+  "nPerBot": 1000,
+  "file": "common/bank_summary.json",
+  "note": "constants copied from the bank summary; loadEnv asserts they match"
+ },
+ "seeds": {
+  "pilotCold": "ff8-pilot-cold",
+  "pilotWarm": "ff8-pilot-warm",
+  "tuneCold": "ff8-tune-cold",
+  "tuneWarm": "ff8-tune-warm",
+  "nat": "ff8-nat",
+  "nat16": "ff8-nat16",
+  "bank": "ff8-bank",
+  "hist": "ff8-hist",
+  "ladder": "ff8-ladder"
+ },
+ "pom": {
+  "r": 40,
+  "popDelay": 8,
+  "popCap": 2,
+  "popTierMax": 2,
+  "gapLo": 12,
+  "gapHi": 16,
+  "reads": 48
+ },
+ "rescue": {
+  "kMax": 2,
+  "dr": 7,
+  "pulls": 2,
+  "gap": 12
+ },
+ "clock": {
+  "aB": 0.71565,
+  "phiCap": 0.99,
+  "phiLook": 0.85,
+  "hLate": 0.7,
+  "hWarn": 0.8,
+  "tauHi": 0.8
+ }
+}
