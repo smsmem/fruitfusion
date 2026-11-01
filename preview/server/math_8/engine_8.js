@@ -63,6 +63,13 @@ module.exports = function makeEngine(Matter, sha256, cfg, hashes) {
     step(hooks) {
       this.buf.length = 0;
       Engine.update(this.engine, P.stepMs);
+      { // PREVIEW (not in math_8): near-contact merge. Two same fruit whose edges are within max(6, 5% of r) merge as if touching (Matter's 20-sided bodies can rest a few units apart, which looks like touching on screen)
+        const L = this.list;
+        for (let i = 0; i < L.length; i++) { const a = L[i]; if (a.dead || a.tier >= 9 || !a.landed) continue;
+          for (let j = i + 1; j < L.length; j++) { const b = L[j]; if (b.dead || b.tier !== a.tier || !b.landed) continue;
+            const dx = a.body.position.x - b.body.position.x, dy = a.body.position.y - b.body.position.y, lim = 2 * R[a.tier] + Math.max(6, 0.05 * R[a.tier]);
+            if (dx * dx + dy * dy <= lim * lim) this.buf.push(a, b); } }
+      }
       const merges = [];
       if (this.buf.length) {
         const seen = new Set(), prs = [];
